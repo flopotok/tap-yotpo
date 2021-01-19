@@ -15,6 +15,11 @@ GRANT_TYPE = "client_credentials"
 class RateLimitException(Exception):
     pass
 
+class ClientError(Exception):
+    pass
+
+class BadGateway(Exception):
+    pass
 
 def _join(a, b):
     return a.rstrip("/") + "/" + b.lstrip("/")
@@ -67,8 +72,15 @@ class Client(object):
             raise RateLimitException()
         if response.status_code == 404:
             return None
-        response.raise_for_status()
-        return response.json()
+        if response.status_code == 400:
+            raise ClientError()
+        if response.status_code == 502:
+            raise BadGateway()
+        try:
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.ConnectionError:
+            self.authenticate()
 
     def authenticate(self):
         auth_body = {

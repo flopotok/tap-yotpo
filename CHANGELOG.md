@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+  * Retry requests that receive 502 and 400 response.
+  * Reauthenticate when connection is closed.
+
 ## 1.1.1
   * Add explicit dependency for pendulum
 
